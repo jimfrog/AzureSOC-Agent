@@ -1,3 +1,4 @@
+from azure.core.exceptions import HttpResponseError
 from azure.monitor.query import LogsQueryClient
 from azure.monitor.query import LogsQueryStatus
 
@@ -18,23 +19,54 @@ class LogAnalyticsClient:
         query,
         timespan=None
     ):
+        """Runs a KQL query and returns a structured result dict.
 
-        response = self.client.query_workspace(
-            workspace_id=workspace_id,
-            query=query,
-            timespan=timespan
-        )
+        Returns a dict with keys:
+          success: bool
+          columns: list[str] (empty on failure)
+          rows: list[list] (empty on failure)
+          error: str (present only on failure)
+        """
+
+        try:
+
+            response = self.client.query_workspace(
+                workspace_id=workspace_id,
+                query=query,
+                timespan=timespan
+            )
+
+        except HttpResponseError as error:
+
+            return {
+                "success": False,
+                "columns": [],
+                "rows": [],
+                "error": str(error)
+            }
 
         if response.status == LogsQueryStatus.SUCCESS:
+            tables = response.tables
 
-            records = []
+        elif response.status == LogsQueryStatus.PARTIAL:
+            tables = response.partial_data
 
-            for table in response.tables:
+        else:
 
-                for row in table.rows:
+            return {
+                "success": False,
+                "columns": [],
+                "rows": [],
+                "error": "Query returned no data."
+            }
 
-                    records.append(row)
+        if not tables:
+            return {"success": True, "columns": [], "rows": []}
 
-            return records
+        table = tables[0]
 
-        return []
+        return {
+            "success": True,
+            "columns": list(table.columns),
+            "rows": [list(row) for row in table.rows]
+        }

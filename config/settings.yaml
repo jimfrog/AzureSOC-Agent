@@ -2,6 +2,8 @@ agent:
   name: AzureSOC-Agent
 
 azure:
+  # Log Analytics workspace ID (GUID). Overridden by
+  # AZURE_LOG_ANALYTICS_WORKSPACE_ID if that env var is set.
   default_workspace: ""
   default_subscription: ""
 
