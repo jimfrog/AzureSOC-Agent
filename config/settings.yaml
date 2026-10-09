@@ -1,0 +1,11 @@
+agent:
+  name: AzureSOC-Agent
+
+azure:
+  default_workspace: ""
+  default_subscription: ""
+
+features:
+  query_execution: true
+  kql_generation: true
+  resource_discovery: true

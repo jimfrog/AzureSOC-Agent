@@ -1,0 +1,8 @@
+azure-identity
+azure-monitor-query
+azure-core
+openai
+semantic-kernel
+python-dotenv
+pyyaml
+rich
